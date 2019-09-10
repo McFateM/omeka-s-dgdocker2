@@ -6,7 +6,7 @@ defaultEntryPoints = ["http", "https"]
 #
 # Optional
 #
-caServer = "https://acme-staging.api.letsencrypt.org/directory"
+# caServer = "https://acme-staging.api.letsencrypt.org/directory"
 
 [entryPoints]
   [entryPoints.dashboard]
