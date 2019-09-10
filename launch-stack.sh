@@ -13,14 +13,8 @@ docker network create web
 cd /opt/dockerized-server
 docker-compose up -d
 
-## Start Solr
-
-cd ../solr
-docker-compose up -d
-
-## Start Omeka-S, MariaDB and PHPMyAdmin
+## Start Omeka-S, Solr, MariaDB and PHPMyAdmin
 
 cd ../omeka-s-docker
-git checkout dgdocker2
 docker-compose up -d
 

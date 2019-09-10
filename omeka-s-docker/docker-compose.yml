@@ -64,7 +64,44 @@ services:
 #      - "traefik.frontend.redirect.replacement=$$1/wmi/"
 #      - "traefik.frontend.rule=PathPrefix:/wmi;ReplacePathRegex: ^/wmi/(.*) /$$1"
 
+
+## This is the "solr" portion of dodeeric's original docker-compose-traefik.yml modified
+##   for host "dgdocker2" and the "dockerized-server" configuration running there.
+
+  ## Adding solr per `Using Docker Compose` example at https://docs.docker.com/samples/library/solr/
+
+  solr:
+    image: solr:5.5.5
+    container_name: solr
+    restart: always
+    networks:
+      - web
+      - internal
+    ports:
+      - "8983:8983"
+    volumes:
+      - solr-data:/opt/solr/server/solr/mycores
+    entrypoint:
+      - docker-entrypoint.sh
+      - solr-precreate
+      - mycore
+    labels:
+      - "traefik.backend=solr"
+      - "traefik.port=8983"
+      - traefik.docker.network=web
+      - traefik.enable=true
+      - "traefik.frontend.rule=Host:portainer2.grinnell.edu"
+## The above kludge is being used since I can't get /solr to work, and since the "portianer2" DNS entry is otherwise unused at this time  8^(
+## @TODO - Have ITS create a new "solr2.grinnell.edu" DNS entry ASAP
+#      - "traefik.frontend.rule=Host:solr2.grinnell.edu"
+#      - "traefik.frontend.priority=50"
+#      - "traefik.frontend.rule=PathPrefixStrip:/solr"
+#      - "traefik.frontend.redirect.regex=^(.*)/solr$$"
+#      - "traefik.frontend.redirect.replacement=$$1/solr/"
+#      - "traefik.frontend.rule=PathPrefix:/solr;ReplacePathRegex: ^/solr/(.*) /$$1"
+
 volumes:
+  solr-data:
   mariadb:
   omeka:
 
