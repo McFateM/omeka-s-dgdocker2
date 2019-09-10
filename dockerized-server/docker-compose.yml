@@ -1,0 +1,78 @@
+version: "3"
+
+#### docker network create web
+#### docker-compose up -d
+
+services:
+
+  traefik:
+    image: traefik:1.7.14-alpine
+    command: --configFile=/traefik.toml
+    container_name: traefik
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /opt/dockerized-server/data/traefik.toml:/traefik.toml
+      - /opt/dockerized-server/data/acme.json:/acme.json
+    networks:
+      - web
+    labels:
+      - traefik.enable=true
+      - "traefik.frontend.rule=Host:traefik2.grinnell.edu"
+## I've had NO luck trying to get Traefik to respond at a "/path" address, like https://omeka-s.grinnell.edu/traefik.
+## So the traefik.frontend.rule above will have to suffice for now, and the rules that follow should remain commented out.
+#      - "traefik.frontend.rule=PathPrefixStrip:/traefik"
+#      - "traefik.frontend.redirect.regex=^(.*)/traefik$$"
+#      - "traefik.frontend.redirect.replacement=$$1/traefik/"
+#      - "traefik.frontend.rule=PathPrefix:/traefik;ReplacePathRegex: ^/traefik/(.*) /$$1"
+      - traefik.port=8080
+
+  portainer:
+    image: portainer/portainer
+    container_name: portainer
+    command: --admin-password "$$2y$$05$$pJEzHJBzfoYYS7/hGAedcOP8XdsqNXE7j.LHFBVjueASOqOvvjGOy" -H unix:///var/run/docker.sock
+    # command: -H unix:///var/run/docker.sock --no-auth
+    networks:
+      - web
+      - internal
+    ports:
+      - "9010:9000"     ## Remapped to avoid conflicts on systems/servers with portainer already running.
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer-data:/data
+    labels:
+      - traefik.port=9000
+      - traefik.docker.network=web
+      - traefik.enable=true
+      - "traefik.frontend.rule=PathPrefixStrip:/portainer"
+      - "traefik.frontend.redirect.regex=^(.*)/portainer$$"
+      - "traefik.frontend.redirect.replacement=$$1/portainer/"
+      - "traefik.frontend.rule=PathPrefix:/portainer;ReplacePathRegex: ^/portainer/(.*) /$$1"
+
+  whoami:
+    image: emilevauge/whoami
+    container_name: who-am-i
+    labels:
+      - "traefik.enable=true"
+      - "traefik.frontend.rule=PathPrefixStrip:/who-am-i"
+      - "traefik.frontend.redirect.regex=^(.*)/who-am-i$$"
+      - "traefik.frontend.redirect.replacement=$$1/who-am-i/"
+      - "traefik.frontend.rule=PathPrefix:/who-am-i;ReplacePathRegex: ^/who-am-i/(.*) /$$1"
+      - "traefik.frontend.passHostHeader=true"
+      - "traefik.frontend.headers.SSLRedirect=true"
+    networks:
+      - web
+      - internal
+
+networks:
+  web:
+    external: true
+  internal:
+    external: false
+
+volumes:
+  portainer-data:
+

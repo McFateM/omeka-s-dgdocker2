@@ -1,0 +1,76 @@
+version: "3"
+
+## This is the "omeka", "mariadb" and "pma" (PHPMyAdmin) portions of dodeeric's original docker-compose-traefik.yml modified 
+##   for host "dgdocker2" and the "dockerized-server" configuration running there.
+
+services:
+
+  mariadb:
+    image: mariadb:latest
+    container_name: mariadb
+    restart: always
+    networks:
+      - internal
+    volumes:
+      - mariadb:/var/lib/mysql
+      # - ./omeka.sql:/docker-entrypoint-initdb.d/omeka.sql  ## This line, when enabled, will replace your database with an archive copy.  Use with caution!
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_OMEKA_DATABASE}
+      MYSQL_USER: ${MYSQL_OMEKA_USER}
+      MYSQL_PASSWORD: ${MYSQL_OMEKA_PASSWORD}
+
+  pma:
+    depends_on:
+      - mariadb
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: pma
+    restart: always
+    networks:
+      - web
+      - internal
+    links:
+      - mariadb:db
+    labels:
+      - "traefik.backend=pma"
+      - traefik.docker.network=web
+      - traefik.enable=true
+#      - "traefik.frontend.rule=Host:pma2.grinnell.edu"    
+      - "traefik.frontend.rule=PathPrefixStrip:/pma"
+      - "traefik.frontend.redirect.regex=^(.*)/pma$$"
+      - "traefik.frontend.redirect.replacement=$$1/pma/"
+      - "traefik.frontend.rule=PathPrefix:/pma;ReplacePathRegex: ^/pma/(.*) /$$1"
+
+  omeka:
+    depends_on:
+      - mariadb
+    image: mcfatem/omeka-s:gc1.4
+    container_name: omeka
+    restart: always
+    networks:
+      - web
+      - internal
+    links:
+      - mariadb:db
+    volumes:
+      - omeka:/var/www/html/volume
+    labels:
+      - "traefik.backend=omeka"
+      - traefik.docker.network=web
+      - traefik.enable=true
+      - "traefik.frontend.rule=Host:omeka-s.grinnell.edu"
+#      - "traefik.frontend.rule=PathPrefixStrip:/wmi"
+#      - "traefik.frontend.redirect.regex=^(.*)/wmi$$"
+#      - "traefik.frontend.redirect.replacement=$$1/wmi/"
+#      - "traefik.frontend.rule=PathPrefix:/wmi;ReplacePathRegex: ^/wmi/(.*) /$$1"
+
+volumes:
+  mariadb:
+  omeka:
+
+networks:
+  web:
+    external: true
+  internal:
+    external: false
+

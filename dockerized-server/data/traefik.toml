@@ -1,0 +1,53 @@
+defaultEntryPoints = ["http", "https"]
+
+# CA server to use
+# Uncomment the line to run on the staging Let's Encrypt server
+# Leave comment to go to prod
+#
+# Optional
+#
+caServer = "https://acme-staging.api.letsencrypt.org/directory"
+
+[entryPoints]
+  [entryPoints.dashboard]
+    address = ":8080"
+    [entryPoints.dashboard.auth]
+      [entryPoints.dashboard.auth.basic]
+        users = ["admin:$2y$05$pJEzHJBzfoYYS7/hGAedcOP8XdsqNXE7j.LHFBVjueASOqOvvjGOy"]
+  [entryPoints.http]
+    address = ":80"
+      [entryPoints.http.redirect]
+        entryPoint = "https"
+  [entryPoints.https]
+    address = ":443"
+      [entryPoints.https.tls]
+        minVersion = "VersionTLS12"
+        cipherSuites = [
+          "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
+          "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+          "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305",
+          "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305",
+          "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
+          "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+          "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256",
+          "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256"
+         ]
+
+[api]
+entrypoint="dashboard"
+
+[acme]
+### email = "your_email@your_domain"
+email = "digital@grinnell.edu"
+storage = "acme.json"
+entryPoint = "https"
+onHostRule = true
+  [acme.httpChallenge]
+  entryPoint = "http"
+
+[docker]
+### domain = "your_domain"
+domain = "omeka-s.grinnell.edu"
+watch = true
+network = "web"
+

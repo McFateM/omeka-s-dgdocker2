@@ -1,0 +1,5 @@
+.env
+.out-of-the-way/*
+omeka-s-docker/volume/*
+
+
