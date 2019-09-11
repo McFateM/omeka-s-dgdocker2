@@ -35,11 +35,12 @@ services:
       - "traefik.backend=pma"
       - traefik.docker.network=web
       - traefik.enable=true
-#      - "traefik.frontend.rule=Host:pma2.grinnell.edu"    
-      - "traefik.frontend.rule=PathPrefixStrip:/pma"
-      - "traefik.frontend.redirect.regex=^(.*)/pma$$"
-      - "traefik.frontend.redirect.replacement=$$1/pma/"
-      - "traefik.frontend.rule=PathPrefix:/pma;ReplacePathRegex: ^/pma/(.*) /$$1"
+      - "traefik.frontend.rule=Host:pma2.grinnell.edu"    
+## The /path addressing approach attempted below did not work properly.  Switched to new pma2.grinnell.edu subdomain on 11-Sep-2019
+#      - "traefik.frontend.rule=PathPrefixStrip:/pma"
+#      - "traefik.frontend.redirect.regex=^(.*)/pma$$"
+#      - "traefik.frontend.redirect.replacement=$$1/pma/"
+#      - "traefik.frontend.rule=PathPrefix:/pma;ReplacePathRegex: ^/pma/(.*) /$$1"
 
   omeka:
     depends_on:
@@ -59,11 +60,6 @@ services:
       - traefik.docker.network=web
       - traefik.enable=true
       - "traefik.frontend.rule=Host:omeka-s.grinnell.edu"
-#      - "traefik.frontend.rule=PathPrefixStrip:/wmi"
-#      - "traefik.frontend.redirect.regex=^(.*)/wmi$$"
-#      - "traefik.frontend.redirect.replacement=$$1/wmi/"
-#      - "traefik.frontend.rule=PathPrefix:/wmi;ReplacePathRegex: ^/wmi/(.*) /$$1"
-
 
 ## This is the "solr" portion of dodeeric's original docker-compose-traefik.yml modified
 ##   for host "dgdocker2" and the "dockerized-server" configuration running there.
@@ -90,10 +86,8 @@ services:
       - "traefik.port=8983"
       - traefik.docker.network=web
       - traefik.enable=true
-      - "traefik.frontend.rule=Host:portainer2.grinnell.edu"
-## The above kludge is being used since I can't get /solr to work, and since the "portianer2" DNS entry is otherwise unused at this time  8^(
-## @TODO - Have ITS create a new "solr2.grinnell.edu" DNS entry ASAP
-#      - "traefik.frontend.rule=Host:solr2.grinnell.edu"
+      - "traefik.frontend.rule=Host:solr2.grinnell.edu"
+## The /path addressing approach attempted below did not work properly.  Switched to new solr2.grinnell.edu subdomain on 11-Sep-2019
 #      - "traefik.frontend.priority=50"
 #      - "traefik.frontend.rule=PathPrefixStrip:/solr"
 #      - "traefik.frontend.redirect.regex=^(.*)/solr$$"
