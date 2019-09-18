@@ -37,13 +37,6 @@ RUN pecl install mcrypt-1.0.2 && docker-php-ext-enable mcrypt && pecl install im
 RUN git config --global user.email "digital@grinnell.edu" && \
   git config --global user.name "Mark McFate"
 
-### Add the Omeka-S PHP code
-#COPY ./omeka-s-1.4.0.zip /var/www/
-#RUN unzip -q /var/www/omeka-s-1.4.0.zip -d /var/www/ \
-#&&  rm /var/www/omeka-s-1.4.0.zip \
-#&&  rm -rf /var/www/html/ \
-#&&  mv /var/www/omeka-s/ /var/www/html/
-
 ## Add the Omeka-S PHP code
 COPY ./omeka-s-master.zip /var/www/
 RUN unzip -q /var/www/omeka-s-master.zip -d /var/www/ \
@@ -51,6 +44,7 @@ RUN unzip -q /var/www/omeka-s-master.zip -d /var/www/ \
   &&  rm -rf /var/www/html/ \
   &&  mv /var/www/omeka-s-master/ /var/www/html/
 
+## Unfortuantely, the following does not work yet!  @TODO Investigate and make it work!
 ## Pull the Omeka-S PHP code via git... but leave it in /tmp/omeka-s
 #RUN git clone ${omeka_s_repo} /tmp/omeka-s
 #WORKDIR /tmp/omeka-s
